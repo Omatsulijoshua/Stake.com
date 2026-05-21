@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0f212e;
+  --color-foreground: #ffffff;
+  --color-card: #1a2c38;
+  --color-primary: #1475e1;
+  --color-secondary: #213743;
+  --color-accent: #00e701;
+  --color-danger: #ff4b4b;
+}
+
+:root {
+  --background: 210 50% 6%;
+  --foreground: 0 0% 100%;
+  --card: 204 33% 16%;
+  --primary: 211 83% 48%;
+  --secondary: 202 34% 20%;
+  --accent: 120 100% 45%;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Inter', sans-serif;
+}
+
+.glass {
+  background: rgba(26, 44, 56, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-card {
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}

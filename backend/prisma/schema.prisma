@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  walletAddress   String   @unique
+  username        String?  @unique
+  balance         Decimal  @default(0)
+  role            Role     @default(USER)
+  status          Status   @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sessions        Session[]
+  bets            Bet[]
+  transactions    Transaction[]
+  withdrawalRequests WithdrawalRequest[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  nonce     String   @unique
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Bet {
+  id            String      @id @default(uuid())
+  userId        String
+  gameType      GameType
+  amount        Decimal
+  multiplier    Decimal?
+  payout        Decimal?
+  result        BetResult
+  gameSessionId String
+  createdAt     DateTime    @default(now())
+
+  user          User        @relation(fields: [userId], references: [id])
+  gameSession   GameSession @relation(fields: [gameSessionId], references: [id])
+}
+
+model GameSession {
+  id          String   @id @default(uuid())
+  gameType    GameType
+  serverSeed  String
+  clientSeed  String?
+  nonce       Int
+  result      String?
+  hash        String   @unique // Hashed server seed
+  createdAt   DateTime @default(now())
+
+  bets        Bet[]
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  userId        String
+  type          TransactionType
+  amount        Decimal
+  currency      Currency
+  status        TransactionStatus @default(PENDING)
+  txHash        String?           @unique
+  network       Network
+  createdAt     DateTime          @default(now())
+
+  user          User              @relation(fields: [userId], references: [id])
+}
+
+model WithdrawalRequest {
+  id          String            @id @default(uuid())
+  userId      String
+  amount      Decimal
+  currency    Currency
+  status      WithdrawalStatus  @default(PENDING)
+  adminId     String?
+  approvedAt  DateTime?
+  txHash      String?           @unique
+  createdAt   DateTime          @default(now())
+
+  user        User              @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  SUSPENDED
+}
+
+enum GameType {
+  DICE
+  CRASH
+  ROULETTE
+}
+
+enum BetResult {
+  WIN
+  LOSS
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  BET_PLACE
+  BET_WIN
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum Currency {
+  ETH
+  SOL
+  USDT
+}
+
+enum Network {
+  ETHEREUM
+  SOLANA
+}
